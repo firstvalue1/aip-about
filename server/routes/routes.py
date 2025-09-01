@@ -1,6 +1,20 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status, HTTPException
 from models.db_init import flask_app
 from models.aip_invest import InvestModel
+import uuid
+from pydantic import BaseModel
+from datetime import date
+from typing import Optional
+
+
+class InvestmentCreate(BaseModel):
+    invest_date: date
+    amount: float  # For financial data, consider using Decimal for better precision
+    description: Optional[str] = None
+
+class InvestmentResponse(BaseModel):
+    status: str
+    id: str
 
 
 router = APIRouter()
@@ -17,24 +31,28 @@ async def get_investments():
         for inv in investments:
             # __dict__를 사용해 객체의 속성을 딕셔너리로 변환
             inv_dict = inv.__dict__
-            # id, amount 등 필요한 필드의 타입 변환
-                # inv_dict["id"] = str(inv_dict["id"])
-                # inv_dict["amount"] = float(inv_dict["amount"])
-                
-            # get_all 메서드에서 반환되는 InvestModel 객체 리스트를 딕셔너리로 변환할 때,
-            # 각 객체의 속성(attribute)을 수동으로 하나씩 지정하지 않고, 
-            # 객체의 __dict__  메서드를 활용해 더 효율적으로 처리할 수 있어요.
-            # 소스 구성 
-            # investments_list = [
-            #     {
-            #         "id": str(inv.id),
-            #         "invest_date": inv.invest_date,
-            #         "amount": float(inv.amount),
-            #         "description": inv.description
-            #         }
-            #         for inv in investments
-            # ]
-
             investments_list.append(inv_dict)
             
         return sorted(investments_list, key=lambda x: x["invest_date"], reverse=True)
+    
+@router.post(
+    "/set/invest"
+    , response_model=InvestmentResponse
+    , status_code=status.HTTP_201_CREATED
+)
+async def add_investment(inventment: InvestmentCreate):
+    try:
+        with flask_app.app_context():
+            new_invest = InvestModel(
+                id=uuid.uuid4(),
+                invest_date=inventment.invest_date,
+                amount=inventment.amount,
+                description=inventment.description
+            )
+            new_invest.save()
+            return {"status": "investment added", "id": str(new_invest.id)}
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                            detail=str(e)
+                            )
+    

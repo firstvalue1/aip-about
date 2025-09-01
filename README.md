@@ -17,6 +17,5 @@ uvicorn app:main.py --reload
 - pip freeze > requirements.txt
 - pip install -r requirements.txt
 
-- window
 
 
