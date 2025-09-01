@@ -3,7 +3,6 @@ from routes.routes import router  # 라우터 import
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from config import SQLALCHEMY_DATABASE_URI
 
 app = FastAPI()
 

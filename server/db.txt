@@ -1,0 +1,24 @@
+CREATE TABLE aip.aip_invest (
+	id uuid NOT NULL,
+	invest_date date default CURRENT_DATE null,
+   amount numeric,
+	description varchar NULL,
+	attr1 varchar null,
+	attr2 varchar null,
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	last_update_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT aip_invest_pkey PRIMARY KEY (id)
+);
+
+
+CREATE TABLE aip.aip_dividends (
+	id uuid NOT NULL,
+	dividends_date date default CURRENT_DATE null,
+   dividends_amount numeric,
+	description varchar NULL,
+	attr1 varchar null,
+	attr2 varchar null,
+	created_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	last_update_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT aip_dividends_pkey PRIMARY KEY (id)
+);
