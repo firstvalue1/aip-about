@@ -11,7 +11,7 @@ python3 -m venv server
 npm create vite@latest client
 
 ## uvicorn + FastAPI
-uvicorn app:main.py --reload
+uvicorn main:app --reload
 
 ## 명령어들
 - pip freeze > requirements.txt
