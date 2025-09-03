@@ -1,24 +1,11 @@
-#===================================================================================
-#                      Copyright(c) 2025 AIPEOPELS
-#  *
-#  * Project            : 투자금 현황
-#  * Source Description : 투자금현황 관리 모델
-#  * Author             : PARK SEOK HO
-#  * Version            : 1.0.0
-#  * Created Date       : 2025-09-01
-#  * Modified Date            : 
-#  * Last modifier            :
-#  * Updated content    : 최초 작성
-#  *==================================================================================*/
 
 from models.db_init import db
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from sqlalchemy import func
 
-
-class InvestModel(db.Model):
-    __tablename__ = 'aip_invest'
+class DividendsModel(db.Model):
+    __tablename__ = 'aip_dividends'
     __table_args__ = {'schema': 'aip'}
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -45,5 +32,3 @@ class InvestModel(db.Model):
     @classmethod
     def get_by_id(cls, id):
         return cls.query.filter_by(id=id).first()
-    
-    

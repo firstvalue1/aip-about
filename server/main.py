@@ -1,12 +1,14 @@
 
-from routes.routes import router  # 라우터 import
+from routes.invest_routes import router as invest_routes  # 라우터 import
+from routes.devidends_routes import router as dividends_router  # 라우터 import
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-app.include_router(router)  # 라우터 등록
+app.include_router(invest_routes)  # 라우터 등록
+app.include_router(dividends_router)  # 라우터 등록
 
 
 # CORS 설정

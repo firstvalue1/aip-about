@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 # Pydantic 모델 정의
 class InvestmentBase(BaseModel):
-    invest_date: date
+    date: date
     # 금융 데이터는 float의 부동 소수점 오류를 피하기 위해 Decimal 사용을 권장합니다.
     amount: Decimal
     description: Optional[str] = None
@@ -36,14 +36,9 @@ class InvestmentResponse(BaseModel):
     id: str
 
 
-router = APIRouter(prefix="/api", tags=["api"])
+router = APIRouter(prefix="/api/invest", tags=["api_invest"])
 
-@router.get("/health", summary="Health Check", tags=["monitoring"])
-async def health_check():
-    """서버의 상태를 확인합니다."""
-    return {"status": "ok"}
-
-@router.get("/invest", response_model=List[Investment], summary="Get All Investments", tags=["investments"])
+@router.get("/", response_model=List[Investment], summary="Get All Investments", tags=["investments"])
 async def get_investments():
     """
     모든 투자 내역을 날짜 역순으로 조회합니다.
@@ -54,7 +49,7 @@ async def get_investments():
     with flask_app.app_context():
         # DB에서 직접 정렬하는 것이 가장 효율적입니다.
         # 예: investments = InvestModel.query.order_by(InvestModel.invest_date.desc()).all()
-        investments = InvestModel.query.order_by(InvestModel.invest_date.desc()).all()
+        investments = InvestModel.query.order_by(InvestModel.date.desc()).all()
 
         # __dict__ 대신 Pydantic 모델을 사용하여 명시적으로 데이터를 변환합니다.
         # 이는 SQLAlchemy의 내부 상태(_sa_instance_state)가 노출되는 것을 방지합니다.
@@ -64,7 +59,7 @@ async def get_investments():
         return investments_list
     
 @router.post(
-    "/invest/save",
+    "/save",
     response_model=InvestmentResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Add a New Investment",
@@ -74,10 +69,12 @@ async def add_investment(investment: InvestmentCreate):
     """새로운 투자 내역을 추가합니다."""
     try:
         with flask_app.app_context():
+            print(investment)
+            print(type(investment))
             # id는 데이터베이스에서 자동 생성(예: auto-increment, UUID default)되도록 하는 것이 일반적입니다.
             new_invest = InvestModel(
                 id=uuid.uuid4(),
-                invest_date=investment.invest_date,
+                date=investment.date,
                 amount=investment.amount,
                 description=investment.description
             )
@@ -88,8 +85,8 @@ async def add_investment(investment: InvestmentCreate):
         # 서버 로그에 자세한 에러를 기록합니다.
         logger.error(f"Failed to add investment: {e}", exc_info=True)
         # 클라이언트에게는 내부 구현 세부사항을 노출하지 않습니다.
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="An internal server error occurred while adding the investment."
-        )
+        # raise HTTPException(
+        #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+        #     detail="An internal server error occurred while adding the investment."
+        # )
     
