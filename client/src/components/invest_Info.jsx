@@ -13,7 +13,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NavBar, Divider, Space, Empty } from 'antd-mobile';
+import { NavBar, Divider, Space, Empty, SafeArea } from 'antd-mobile';
 import { fetchDividendsData, fetchInvestmentData } from './api_service'; // API 호출 함수
 import topTabs from './common/topTap'; // 상단 탭 데이터
 import ListContent from './common/listContent'; // 리스트 컴포넌트
@@ -42,7 +42,10 @@ const investmentFetchData = async () => {
         const data = await fetchInvestmentData(); 
         if (Array.isArray(data)) {
             setInvestmentData(data);
-            const total = data.reduce((sum, item) => sum + item.amount, 0);
+            const total = data.reduce((sum, item) => {
+                const amount = parseFloat(item.amount) || 0;
+                return sum + amount;
+            }, 0);
             setInvestTotalAmount(total);
         }
     } catch (error) {
@@ -58,7 +61,10 @@ const dividendsFetchData = async () => {
         const data = await fetchDividendsData(); 
         if (Array.isArray(data)) {
             setDividentData(data);
-            const total = data.reduce((sum, item) => sum + item.amount, 0);
+                        const total = data.reduce((sum, item) => {
+                const amount = parseFloat(item.amount) || 0;
+                return sum + amount;
+            }, 0);
             setDividentTotalAmount(total);
         }
     } catch (error) {
@@ -73,7 +79,16 @@ const dividendsFetchData = async () => {
   };
 
   const handleAddClick = () => {
-    navigate('/add-investment'); // 투자금 입력 화면으로 이동
+    switch (activeTopTab) {
+      case 'investment':
+        navigate('/add-investment'); // 투자금 입력 화면으로 이동
+        break;
+      case 'dividend':
+        navigate('/add-dividends'); // 배당금 입력 화면으로 이동
+        break;
+      default:
+        break;
+    }
   };
 
   // 각 탭에 대한 컴포넌트
@@ -107,7 +122,7 @@ const dividendsFetchData = async () => {
 
   return (
 <>
-<div className="app-container">
+<div className="app-container" style={{ height: '100vh', backgroundColor: 'white' }}>
       {/* 상단 네비게이션 바 */}
       <NavBar
         backIcon={false}
@@ -118,6 +133,10 @@ const dividendsFetchData = async () => {
         }
       >
         <div className='header-title'>투자 정보</div>
+
+        {/* iOS 상단 안전 영역 처리 */}
+        <SafeArea position='top' />
+
       </NavBar>
       <Divider />
       
@@ -136,6 +155,9 @@ const dividendsFetchData = async () => {
 
       {/* 컨텐츠 영역 */}
           {RenderContent()}
+
+      {/* iOS 하단 안전 영역 처리 */}
+      <SafeArea position='bottom' />
 
 </div>
 

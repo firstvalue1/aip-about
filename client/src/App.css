@@ -52,7 +52,9 @@ body {
 }
 
 .content-container {
-  /* flex: 1; 남은 공간을 모두 차지하도록 설정 */
+  /* flex: 1;  */
+  flex-direction: column;
+  overflow: hidden; /* 내용이 넘칠 경우 스크롤바가 생기지 않도록 설정 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -71,14 +73,15 @@ body {
   font-size: 24px;
 }
 
-
-
 .content-list-container {
-width: 100%;
-background-color: #fff;
-border-radius: 8px;
-box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-overflow: hidden;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 .list-item {
 display: flex;
@@ -101,4 +104,53 @@ text-align: center;
 .custombody {
     color: var(--adm-color-success);
     font-weight: bold;
+    text-align: center;
+}
+
+/* 스크롤 가능한 리스트 컨테이너 스타일 */
+
+.scrollable-list {
+  /* 
+    calc()를 사용해 전체 화면 높이에서 헤더, 탭, 총액 컴포넌트, 리스트 헤더 등의
+    높이를 뺀 값으로 최대 높이를 설정합니다. 
+    (250px 값은 실제 레이아웃에 맞게 미세 조정이 필요할 수 있습니다.)
+  */
+  max-height: calc(100vh - 250px);
+  overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤바를 자동으로 표시합니다. */
+}
+
+/* 스크롤바 디자인 (선택 사항) */
+.scrollable-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+.scrollable-list::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+/* 필요시 scroll를 container에 포함할때   listContent.jsx에서 content-container에 추가할 클래스 */
+
+.list-scroll-container {
+  flex: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤바 생성 */
+  max-height: calc(100vh - 220px); /* 전체 화면 높이에서 헤더, 탭, 총액 컴포넌트 등의 높이를 뺀 값으로 최대 높이 설정 (값은 실제 레이아웃에 맞게 조절 필요) */
+}
+
+/* 스크롤바 디자인 (선택 사항) */
+.list-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+.list-scroll-container::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
 }

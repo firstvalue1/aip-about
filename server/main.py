@@ -13,7 +13,8 @@ app.include_router(dividends_router)  # 라우터 등록
 
 # CORS 설정
 origins = [
-    "http://localhost:5173",
+    "http://localhost:5173",  # 개발 환경
+    # "https://your-production-domain.com", # 운영 환경 도메인 추가
 ]
 app.add_middleware(
     CORSMiddleware,

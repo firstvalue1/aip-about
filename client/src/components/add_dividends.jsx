@@ -8,7 +8,7 @@ import {
 } from 'antd-mobile';
 import axios from 'axios';
 
-function AddInvestment() {
+function AddDividends() {
     // Form 인스턴스를 생성하여 폼과 연결합니다.
     const [form] = Form.useForm();
     const [visible, setVisible] = useState(false);
@@ -55,9 +55,9 @@ function AddInvestment() {
                 amount: formattedAmount
             };
 
-            axios.post('/api/invest/save', payload)
+            axios.post('/api/dividends/save', payload)
                 .then(() => {
-                    alert('투자금이 저장되었습니다.');
+                    alert('배당금이 저장되었습니다.');
                     form.resetFields();
                     setInputDate(null);
                 })
@@ -76,7 +76,7 @@ function AddInvestment() {
           }} 
         onBack={() => window.history.back()}>
             
-          <div className='header-title'>투자금 추가</div>
+          <div className='header-title'>배당금 추가</div>
           
         </NavBar>
 
@@ -94,7 +94,7 @@ function AddInvestment() {
                 </Button>
             }
         >  
-            <Form.Header>투자금 입력</Form.Header>
+            <Form.Header>배당금 입력</Form.Header>
             <Form.Item name='date' 
                 rules={[{ required: true, message: '날짜를 입력해주세요.' }]}
                 label="날짜"
@@ -139,4 +139,4 @@ function AddInvestment() {
 );
 };
 
-export default AddInvestment;
+export default AddDividends;

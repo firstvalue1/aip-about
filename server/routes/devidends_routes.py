@@ -57,15 +57,16 @@ async def add_dividends(dividends: DividendsCreate):
     try:
         with flask_app.app_context():
             # id는 데이터베이스에서 자동 생성(예: auto-increment, UUID default)되도록 하는 것이 일반적입니다.
+            new_id = uuid.uuid4()
             new_dividends = DividendsModel(
-                id=uuid.uuid4(),
+                id=new_id,
                 date=dividends.date,
                 amount=dividends.amount,
                 description=dividends.description
             )
             new_dividends.save()
             # id가 UUID 객체일 경우를 대비해 str로 변환
-            return {"status": "dividends added", "id": str(dividends.id)}
+            return {"status": "dividends added", "id": str(new_id)}
     except Exception as e:
         # 서버 로그에 자세한 에러를 기록합니다.
         logger.error(f"Failed to add dividends: {e}", exc_info=True)

@@ -9,12 +9,14 @@ const ListContent = ({ listData }) => {
           <div className="list-column">날 짜</div>
           <div className="list-column">금 액</div>
         </div>
-        {listData.map((item) => (
-          <div className="list-item" key={item.id}>
-            <div className="list-column">{item.date}</div>
-            <div className="list-column">{Number(item.amount).toLocaleString()}</div>
-          </div>
-        ))}
+        <div className="scrollable-list">
+          {listData.map((item) => (
+            <div className="list-item" key={item.id}>
+              <div className="list-column">{item.date}</div>
+              <div className="list-column">{Number(item.amount).toLocaleString()}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

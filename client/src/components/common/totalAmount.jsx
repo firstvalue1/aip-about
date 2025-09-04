@@ -7,6 +7,10 @@ const TotalAmount = ({ title, totalAmount }) => {
       <Card
         headerStyle={{
           color: '#f24db8ff',
+          justifyContent: 'center', // flexbox 가운데 정렬을 위해 justifyContent 사용
+        }}
+        style={{
+          width: '30%', // 원하는 너비로 조절합니다. '300px', '95vw' 등 다양한 값 사용 가능
         }}
         bodyClassName="custombody"
         title={title}

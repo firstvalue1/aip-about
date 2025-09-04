@@ -71,22 +71,23 @@ async def add_investment(investment: InvestmentCreate):
         with flask_app.app_context():
             print(investment)
             print(type(investment))
+            new_id = uuid.uuid4()
             # id는 데이터베이스에서 자동 생성(예: auto-increment, UUID default)되도록 하는 것이 일반적입니다.
             new_invest = InvestModel(
-                id=uuid.uuid4(),
+                id=new_id,
                 date=investment.date,
                 amount=investment.amount,
                 description=investment.description
             )
             new_invest.save()
             # id가 UUID 객체일 경우를 대비해 str로 변환
-            return {"status": "investment added", "id": str(new_invest.id)}
+            return {"status": "investment added", "id": str(new_id)}
     except Exception as e:
         # 서버 로그에 자세한 에러를 기록합니다.
         logger.error(f"Failed to add investment: {e}", exc_info=True)
         # 클라이언트에게는 내부 구현 세부사항을 노출하지 않습니다.
-        # raise HTTPException(
-        #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-        #     detail="An internal server error occurred while adding the investment."
-        # )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="An internal server error occurred while adding the investment."
+        )
     
