@@ -69,8 +69,6 @@ async def add_investment(investment: InvestmentCreate):
     """새로운 투자 내역을 추가합니다."""
     try:
         with flask_app.app_context():
-            print(investment)
-            print(type(investment))
             new_id = uuid.uuid4()
             # id는 데이터베이스에서 자동 생성(예: auto-increment, UUID default)되도록 하는 것이 일반적입니다.
             new_invest = InvestModel(
