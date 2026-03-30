@@ -58,3 +58,6 @@ server/pyvenv.cfg
 # React files
 client/node_modules
 client/yarn.lock
+
+# audio files
+audio/

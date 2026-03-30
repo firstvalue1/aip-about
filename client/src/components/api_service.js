@@ -12,9 +12,9 @@ const API = {
 
 const VOCABS_API = {
     fetchVocabs: `/api/vocabs`,
-    saveVocabs: `/api/set/vocabs`,
-    deleteVocabs: (id) => `/api/delete/vocabs/${id}`,
-    tts: (text) => `/api/tts?text=${text}`,
+    saveVocabs: `/api/vocabs/save`,
+    deleteVocabs: (id) => `/api/vocabs/delete/${id}`,
+    tts: (id, text) => `/api/vocabs/tts?id=${id}&text=${text}`,
 }
 
 // investment
@@ -84,9 +84,9 @@ export const deleteVocabsData = async (id) => {
         throw error;
     }
 }
-export const playTTSData = async (text) => {
+export const playTTSData = async (id, text) => {
     try {
-        const response = await axios.get(VOCABS_API.tts(text), { responseType: 'blob' });
+        const response = await axios.get(VOCABS_API.tts(id, text), { responseType: 'blob' });
         const audioBlob = response.data;
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);

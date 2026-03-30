@@ -43,9 +43,9 @@ function VocabsInfo() {
   };
 
   // 3. TTS 재생
-  const playTTS = async (text) => {
+  const playTTS = async (id, text) => {
     try {
-        await playTTSData(text);
+        await playTTSData(id, text);
     } catch (err) {
       Toast.show({ content: '음성 재생 실패', icon: 'fail' });
     }
@@ -77,7 +77,7 @@ function VocabsInfo() {
         <Form.Item name='kanji' label='일본어(한자)' rules={[{ required: true }]}>
           <Input placeholder='예: 食べる' />
         </Form.Item>
-        <Form.Item name='furigana' label='후리가나' rules={[{ required: true }]}>
+        <Form.Item name='furigana' label='후리가나'>
           <Input placeholder='예: たべる' />
         </Form.Item>
         <Form.Item name='meaning' label='한국어 뜻' rules={[{ required: true }]}>
@@ -100,7 +100,7 @@ function VocabsInfo() {
             ]}
           >
             <List.Item
-              prefix={<SoundOutline onClick={() => playTTS(v.kanji)} style={{ fontSize: 24, color: '#1677ff', cursor: 'pointer' }} />}
+              prefix={<SoundOutline onClick={() => playTTS(v.id, v.kanji)} style={{ fontSize: 24, color: '#1677ff', cursor: 'pointer' }} />}
               description={`${v.furigana} - ${v.meaning}`}
               extra={<DeleteOutline onClick={() => deleteVocab(v.id)} style={{ color: '#ff4d4f' }} />}
             >

@@ -1,6 +1,8 @@
 
 from routes.invest_routes import router as invest_routes  # 라우터 import
 from routes.devidends_routes import router as dividends_router  # 라우터 import
+from routes.vocabs_routes import router as vocabs_router  # 라우터 import
+
 from models.db_init import flask_app
 
 from fastapi import FastAPI
@@ -15,6 +17,7 @@ flask_app.config["SQLALCHEMY_ECHO"] = False
 
 app.include_router(invest_routes)  # 라우터 등록
 app.include_router(dividends_router)  # 라우터 등록
+app.include_router(vocabs_router)  # 라우터 등록
 
 
 # CORS 설정

@@ -26,7 +26,7 @@ class VocabsModel(db.Model):
     furigana = db.Column(db.String)
     meaning = db.Column(db.String)
     language = db.Column(db.String)
-    momorize_yn = db.Column(db.String)
+    memorize_yn = db.Column(db.String)
     last_update_date = db.Column(db.TIMESTAMP, server_default=db.func.now(), onupdate=db.func.now())
 
     def __init__(self, **kwargs):
