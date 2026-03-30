@@ -19,3 +19,8 @@ uvicorn main:app --reload
 
 
 
+# AIPEOPLES.IPTIME에 이관시
+git과 연결되지 않고 수작업으로 이관했음.
+
+ - CLIENT를 PC에서 BUILD후 FTP로 이관 ( 새로운 router가 추가되면 nginx conf 수정해야하는지 확인 필요 )
+ - SERVER는 수정된 프로그램으로 이관 ( 필요시 가상환경에서 라이브러리 인스톨해야함. )
