@@ -10,6 +10,12 @@ const API = {
     saveDividendsData: `/api/dividends/save`,
 }
 
+const VOCABS_API = {
+    fetchVocabs: `/api/vocabs`,
+    saveVocabs: `/api/set/vocabs`,
+    deleteVocabs: (id) => `/api/delete/vocabs/${id}`,
+    tts: (text) => `/api/tts?text=${text}`,
+}
 
 // investment
 export const fetchInvestmentData = async () => {
@@ -48,6 +54,46 @@ export const saveDividendsData = async (data) => {
         return response.data;
     } catch (error) {
         console.error("Error saving dividends data:", error);
+        throw error;
+    }
+}
+
+export const fetchVocabsData = async () => {
+    try {
+        const response = await axios.get(VOCABS_API.fetchVocabs);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching vocabs data:", error);
+        throw error;
+    }
+}
+export const saveVocabsData = async (data) => {
+    try {        
+        const response = await axios.post(VOCABS_API.saveVocabs, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error saving vocabs data:", error);
+        throw error;
+    }
+}
+export const deleteVocabsData = async (id) => {
+    try {        const response = await axios.delete(VOCABS_API.deleteVocabs(id));
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting vocabs data:", error);
+        throw error;
+    }
+}
+export const playTTSData = async (text) => {
+    try {
+        const response = await axios.get(VOCABS_API.tts(text), { responseType: 'blob' });
+        const audioBlob = response.data;
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+        return audio;
+    } catch (error) {
+        console.error("Error playing TTS:", error);
         throw error;
     }
 }

@@ -22,3 +22,14 @@ CREATE TABLE aip.aip_dividends (
 	last_update_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	CONSTRAINT aip_dividends_pkey PRIMARY KEY (id)
 );
+
+CREATE TABLE aip.aip_vocabs (
+	id uuid NOT NULL,
+	kanji varchar not null,
+	furigana varchar null,
+	meaning varchar null,
+	language varchar null,
+	memorize_yn varchar null,
+	last_update_date timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	CONSTRAINT aip_vocabs_pkey PRIMARY KEY (id)
+);

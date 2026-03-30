@@ -2,6 +2,8 @@ import {  BrowserRouter, Route, Routes  } from "react-router-dom";
 import InvestmentInfo from "./components/invest_Info.jsx";
 import AddInvestment from "./components/add-investment.jsx";
 import AddDividends from "./components/add_dividends.jsx";
+import VocabsInfo from "./components/vocabs/vocabs_info.jsx";
+
 import './App.css';
 
 const App = () => {
@@ -11,6 +13,7 @@ const App = () => {
         <Route path="/invest" element={<InvestmentInfo />} />
         <Route path="/add-investment" element={<AddInvestment />} />
         <Route path="/add-dividends" element={<AddDividends />} />
+        <Route path="/vocabs" element={<VocabsInfo />} />
       </Routes>
     
     </BrowserRouter>
