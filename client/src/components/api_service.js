@@ -84,14 +84,27 @@ export const deleteVocabsData = async (id) => {
         throw error;
     }
 }
-export const playTTSData = async (id, text) => {
+export const playTTSData = async (id, text, speed = 1.0) => {
     try {
         const response = await axios.get(VOCABS_API.tts(id, text), { responseType: 'blob' });
         const audioBlob = response.data;
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
-        audio.play();
-        return audio;
+
+        // 오디오 재생이 완료될 때까지 기다리는 Promise 반환
+        return new Promise((resolve, reject) => {
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl); // 메모리 해제
+                resolve();
+            };
+            audio.onerror = (error) => {
+                URL.revokeObjectURL(audioUrl);
+                reject(error);
+            };
+            
+            audio.playbackRate = speed; // 재생 속도 설정
+            audio.play().catch(reject);
+        });
     } catch (error) {
         console.error("Error playing TTS:", error);
         throw error;
