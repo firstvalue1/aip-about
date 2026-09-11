@@ -18,9 +18,22 @@ import { fetchVocabsData, saveVocabsData, deleteVocabsData, playTTSData } from '
 function VocabsInfo() {
   const [vocabs, setVocabs] = useState([]);
   const [speed, setSpeed] = useState(0.8); // 기본 속도를 0.8로 설정
+  const [displayPriority, setDisplayPriority] = useState('meaning');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isTtsPlaying, setIsTtsPlaying] = useState(false);
   const [form] = Form.useForm();
+  const isTtsPlayingRef = React.useRef(false);
+  const shouldStopPlaybackRef = React.useRef(false);
 
   useEffect(() => { fetchVocabs(); }, []);
+
+  const toggleForm = () => {
+    setIsFormOpen((prev) => !prev);
+  };
+
+  const stopAllTTS = () => {
+    shouldStopPlaybackRef.current = true;
+  };
 
   // 1. 단어 목록 가져오기
   const fetchVocabs = async () => {
@@ -46,28 +59,67 @@ function VocabsInfo() {
 
   // 3. TTS 재생
   const playTTS = async (id, text) => {
+    if (isTtsPlayingRef.current) {
+      return;
+    }
+
+    isTtsPlayingRef.current = true;
+    setIsTtsPlaying(true);
+
     try {
-        await playTTSData(id, text, speed);
+      await playTTSData(id, text, speed);
     } catch (err) {
       Toast.show({ content: '음성 재생 실패', icon: 'fail' });
+    } finally {
+      isTtsPlayingRef.current = false;
+      setIsTtsPlaying(false);
     }
   };
 
   // 3.1 전체 재생
   const playAllTTS = async () => {
+    if (isTtsPlayingRef.current) {
+      stopAllTTS();
+      return;
+    }
+
     if (vocabs.length === 0) {
       Toast.show('재생할 단어가 없습니다.');
       return;
     }
 
     Toast.show('순차 재생을 시작합니다.');
-    for (const v of vocabs) {
-      // playTTS가 이제 오디오가 끝날 때까지 await 합니다.
-      await playTTS(v.id, v.kanji);
-      // 단어와 단어 사이 0.5초 간격 추가
-      await new Promise(resolve => setTimeout(resolve, 500));
+    shouldStopPlaybackRef.current = false;
+    isTtsPlayingRef.current = true;
+    setIsTtsPlaying(true);
+
+    try {
+      for (const v of vocabs) {
+        if (shouldStopPlaybackRef.current) {
+          Toast.show('재생을 중단했습니다.');
+          break;
+        }
+
+        await playTTSData(v.id, v.kanji, speed);
+
+        if (shouldStopPlaybackRef.current) {
+          Toast.show('재생을 중단했습니다.');
+          break;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      if (!shouldStopPlaybackRef.current) {
+        Toast.show('재생이 완료되었습니다.');
+      }
+    } catch (err) {
+      Toast.show({ content: '음성 재생 실패', icon: 'fail' });
+    } finally {
+      shouldStopPlaybackRef.current = false;
+      isTtsPlayingRef.current = false;
+      setIsTtsPlaying(false);
     }
-    Toast.show('재생이 완료되었습니다.');
   };
 
   // 4. 단어 삭제
@@ -82,27 +134,48 @@ function VocabsInfo() {
       <NavBar backArrow={false}>일본어 단어장</NavBar>
 
       {/* 입력 폼 섹션 */}
-      <Form
-        form={form}
-        onFinish={onFinish}
-        footer={
-          <Button block type='submit' color='primary' size='large'>
-            단어 등록
-          </Button>
-        }
-        mode='card'
-      >
-        <Form.Header>새 단어 추가</Form.Header>
-        <Form.Item name='kanji' label='일본어(한자)' rules={[{ required: true }]}>
-          <Input placeholder='예: 食べる' />
-        </Form.Item>
-        <Form.Item name='furigana' label='후리가나'>
-          <Input placeholder='예: たべる' />
-        </Form.Item>
-        <Form.Item name='meaning' label='한국어 뜻' rules={[{ required: true }]}>
-          <Input placeholder='예: 먹다' />
-        </Form.Item>
-      </Form>
+      <div style={{ backgroundColor: '#fff', marginTop: '12px', borderRadius: '12px', overflow: 'hidden' }}>
+        <div
+          onClick={toggleForm}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '12px 16px',
+            cursor: 'pointer',
+            borderBottom: isFormOpen ? '1px solid #f0f0f0' : 'none',
+            fontWeight: 'bold',
+            color: '#333',
+          }}
+        >
+          <span>새 단어 추가</span>
+          <span style={{ fontSize: '14px', color: '#666' }}>{isFormOpen ? '접기' : '펼치기'}</span>
+        </div>
+
+        {isFormOpen && (
+          <Form
+            form={form}
+            onFinish={onFinish}
+            footer={
+              <Button block type='submit' color='primary' size='large'>
+                단어 등록
+              </Button>
+            }
+            mode='card'
+          >
+            <Form.Header>새 단어 추가</Form.Header>
+            <Form.Item name='kanji' label='일본어(한자)' rules={[{ required: true }]}>
+              <Input placeholder='예: 食べる' />
+            </Form.Item>
+            <Form.Item name='furigana' label='후리가나'>
+              <Input placeholder='예: たべる' />
+            </Form.Item>
+            <Form.Item name='meaning' label='한국어 뜻' rules={[{ required: true }]}>
+              <Input placeholder='예: 먹다' />
+            </Form.Item>
+          </Form>
+        )}
+      </div>
 
       {/* 재생 속도 설정 섹션 */}
       <div style={{ padding: '12px 16px', backgroundColor: '#fff', marginTop: '12px' }}>
@@ -112,11 +185,12 @@ function VocabsInfo() {
             color='primary' 
             fill='none' 
             onClick={playAllTTS}
-            style={{ padding: 0, height: 'auto' }}
+            disabled={isTtsPlaying ? false : false}
+            style={{ padding: 0, height: 'auto', opacity: isTtsPlaying ? 0.8 : 1 }}
           >
             <Space align='center' style={{ '--gap': '4px' }}>
-              <PlayOutline style={{ fontSize: 22 }} />
-              <span style={{ fontSize: '14px' }}>전체 순차 재생</span>
+              <PlayOutline style={{ fontSize: 22, color: isTtsPlaying ? '#ff4d4f' : undefined }} />
+              <span style={{ fontSize: '14px', color: isTtsPlaying ? '#ff4d4f' : undefined }}>{isTtsPlaying ? 'STOP' : '전체 순차 재생'}</span>
             </Space>
           </Button>
         </div>
@@ -135,29 +209,82 @@ function VocabsInfo() {
         
       </div>
 
+      {/* 표시 우선순위 설정 섹션 */}
+      <div style={{ padding: '12px 16px', backgroundColor: '#fff', marginTop: '12px' }}>
+        <div style={{ fontSize: '14px', color: '#666', fontWeight: 'bold', marginBottom: '8px' }}>
+          표시 우선순위
+        </div>
+        <Selector
+          options={[
+            { label: '한글 우선', value: 'meaning' },
+            { label: '일본어 우선', value: 'kanji' },
+          ]}
+          value={[displayPriority]}
+          onChange={(v) => {
+            if (v.length) setDisplayPriority(v[0]);
+          }}
+        />
+      </div>
+
       {/* 리스트 섹션 */}
       <List header='단어 목록 (왼쪽으로 밀어서 삭제)'>
-        {vocabs.map((v) => (
-          <SwipeAction
-            key={v.id}
-            rightActions={[
-              {
-                key: 'delete',
-                text: '삭제',
-                color: 'danger',
-                onClick: () => deleteVocab(v.id),
-              },
-            ]}
-          >
-            <List.Item
-              prefix={<SoundOutline onClick={() => playTTS(v.id, v.kanji)} style={{ fontSize: 24, color: '#1677ff', cursor: 'pointer' }} />}
-              description={`${v.furigana} - ${v.meaning}`}
-              extra={<DeleteOutline onClick={() => deleteVocab(v.id)} style={{ color: '#ff4d4f' }} />}
+        {vocabs.map((v) => {
+          const isMeaningPriority = displayPriority === 'meaning';
+          const primaryText = isMeaningPriority ? v.meaning : v.kanji;
+          const secondaryText = isMeaningPriority
+            ? `${v.kanji}${v.furigana ? ` / ${v.furigana}` : ''}`
+            : `${v.meaning}${v.furigana ? ` / ${v.furigana}` : ''}`;
+
+          return (
+            <SwipeAction
+              key={v.id}
+              rightActions={[
+                {
+                  key: 'delete',
+                  text: '삭제',
+                  color: 'danger',
+                  onClick: () => deleteVocab(v.id),
+                },
+              ]}
             >
-              <b style={{ fontSize: '18px' }}>{v.kanji}</b>
-            </List.Item>
-          </SwipeAction>
-        ))}
+              <List.Item
+                prefix={
+                  <SoundOutline
+                    onClick={isTtsPlaying ? undefined : () => playTTS(v.id, v.kanji)}
+                    style={{
+                      fontSize: 24,
+                      color: isTtsPlaying ? '#d9d9d9' : '#1677ff',
+                      cursor: isTtsPlaying ? 'not-allowed' : 'pointer',
+                      pointerEvents: isTtsPlaying ? 'none' : 'auto',
+                      opacity: isTtsPlaying ? 0.6 : 1,
+                    }}
+                  />
+                }
+                description={secondaryText}
+                extra={
+                  <DeleteOutline
+                    onClick={isTtsPlaying ? undefined : () => deleteVocab(v.id)}
+                    style={{
+                      color: isTtsPlaying ? '#d9d9d9' : '#ff4d4f',
+                      cursor: isTtsPlaying ? 'not-allowed' : 'pointer',
+                      pointerEvents: isTtsPlaying ? 'none' : 'auto',
+                      opacity: isTtsPlaying ? 0.6 : 1,
+                    }}
+                  />
+                }
+              >
+                <b
+                  onClick={isTtsPlaying ? undefined : () => playTTS(v.id, v.kanji)}
+                  style={{
+                    fontSize: '18px'
+                  }}
+                >
+                  {primaryText}
+                </b>
+              </List.Item>
+            </SwipeAction>
+          );
+        })}
       </List>
       
       {vocabs.length === 0 && (
